@@ -6,6 +6,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Ukulele Chords">
 <meta name="theme-color" content="#6c4df6">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
 <title>Ukulele Chord Match</title>
 <style>
 :root{--card:#fff;--ink:#211b35;--muted:#726b86;--primary:#6c4df6;--primary2:#8b74ff;--good:#20a464;--bad:#d94c4c;--soft:#eee9ff}
@@ -26,7 +29,7 @@ h2{margin:0 0 8px;font-size:24px}.help{color:var(--muted);margin:0 0 12px;line-h
 .start{display:block;width:100%;border:0;border-radius:17px;min-height:58px;background:#6c4df6;color:#fff;font-weight:900;font-size:20px;cursor:pointer}
 .topbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .stat{background:var(--soft);padding:9px 12px;border-radius:13px;font-weight:800}
-.endbtn{border:0;background:#eeeef5;color:#373246;border-radius:13px;padding:9px 12px;font-weight:800}
+.endbtn,.backbtn{border:0;background:#eeeef5;color:#373246;border-radius:13px;padding:9px 12px;font-weight:800}.backbtn{background:#f4f1ff;color:#3b2f7a;border:2px solid #d8d0ff}
 .prompt{text-align:center;font-size:18px;font-weight:800;margin:7px 0 5px}
 .fret-wrap{display:flex;justify-content:center;margin:5px 0}
 .fret-wrap canvas{width:100%;max-width:390px;height:auto;display:block}
@@ -45,7 +48,7 @@ body{padding:calc(8px + env(safe-area-inset-top)) 9px calc(16px + env(safe-area-
 .card{padding:13px;border-radius:17px}h2{font-size:21px}.help{font-size:14px;margin-bottom:7px}
 .chord-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:8px 0 12px}
 .pick{min-height:50px;font-size:19px;padding:6px 2px}.start{min-height:54px;font-size:19px}
-.stat,.endbtn{font-size:14px;padding:8px 9px}.answer{min-height:58px;font-size:21px}}
+.stat,.endbtn,.backbtn{font-size:14px;padding:8px 9px}.answer{min-height:58px;font-size:21px}}
 @media(max-width:340px){.chord-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
@@ -78,9 +81,9 @@ body{padding:calc(8px + env(safe-area-inset-top)) 9px calc(16px + env(safe-area-
 
   <section id="game" class="card hidden">
     <div class="topbar">
+      <button id="backBtn" type="button" class="backbtn">← Back to Home</button>
       <div class="stat">⭐ Score: <span id="score">0</span></div>
       <div class="stat">🔥 Streak: <span id="streak">0</span></div>
-      <button id="endBtn" type="button" class="endbtn">Change Chords</button>
     </div>
     <div class="prompt">Which chord is this?</div>
     <div class="fret-wrap"><canvas id="fretboard" width="430" height="420"></canvas></div>
@@ -95,7 +98,7 @@ body{padding:calc(8px + env(safe-area-inset-top)) 9px calc(16px + env(safe-area-
 var CHORDS={C:[0,0,0,3],F:[2,0,1,0],G:[0,2,3,2],Am:[2,0,0,0],Dm:[2,2,1,0],Em:[0,4,3,2],A:[2,1,0,0],D:[2,2,2,0],A7:[0,1,0,0],C7:[0,0,0,1],G7:[0,2,1,2],E7:[1,2,0,2]};
 var OPEN_FREQS=[392,261.63,329.63,440];
 var pool=[],questionQueue=[],current=null,last=null,score=0,streak=0,locked=false,audioCtx=null;
-var setup=document.getElementById('setup'),game=document.getElementById('game'),startBtn=document.getElementById('startBtn'),setupMsg=document.getElementById('setupMsg'),answers=document.getElementById('answers'),feedback=document.getElementById('feedback'),scoreEl=document.getElementById('score'),streakEl=document.getElementById('streak'),endBtn=document.getElementById('endBtn'),replayBtn=document.getElementById('replayBtn'),canvas=document.getElementById('fretboard'),ctx=canvas.getContext('2d');
+var setup=document.getElementById('setup'),game=document.getElementById('game'),startBtn=document.getElementById('startBtn'),setupMsg=document.getElementById('setupMsg'),answers=document.getElementById('answers'),feedback=document.getElementById('feedback'),scoreEl=document.getElementById('score'),streakEl=document.getElementById('streak'),backBtn=document.getElementById('backBtn'),replayBtn=document.getElementById('replayBtn'),canvas=document.getElementById('fretboard'),ctx=canvas.getContext('2d');
 var pickInputs=document.getElementsByClassName('pick-input');
 
 function getSelectedChords(){var out=[];for(var i=0;i<pickInputs.length;i++){if(pickInputs[i].checked)out.push(pickInputs[i].value);}return out;}
@@ -111,9 +114,15 @@ startBtn.addEventListener('click',function(){
   window.scrollTo(0,0);nextQuestion();
 });
 
-endBtn.addEventListener('click',function(){
-  game.classList.add('hidden');setup.classList.remove('hidden');window.scrollTo(0,0);
-  feedback.className='feedback';feedback.textContent='Choose the matching chord below.';
+backBtn.addEventListener('click',function(){
+  locked=false;
+  questionQueue=[];
+  current=null;
+  game.classList.add('hidden');
+  setup.classList.remove('hidden');
+  feedback.className='feedback';
+  feedback.textContent='Choose the matching chord below.';
+  window.scrollTo(0,0);
 });
 
 replayBtn.addEventListener('click',function(){if(current){withAudio(function(){playChord(CHORDS[current]);});}});
