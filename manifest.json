@@ -1,0 +1,16 @@
+{
+  "name": "Ukulele Chord Match",
+  "short_name": "Ukulele Chords",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f1fb",
+  "theme_color": "#6c4df6",
+  "icons": [
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
