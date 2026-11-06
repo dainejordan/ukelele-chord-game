@@ -3,8 +3,8 @@
   "short_name": "Ukulele Chords",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#f4f1fb",
-  "theme_color": "#6c4df6",
+  "background_color": "#0e2348",
+  "theme_color": "#0e2348",
   "icons": [
     {
       "src": "apple-touch-icon.png",
