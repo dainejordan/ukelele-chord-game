@@ -5,208 +5,369 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Ukulele Chords">
-<meta name="theme-color" content="#6c4df6">
+<meta name="theme-color" content="#0e2348">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.json">
 <title>Ukulele Chord Match</title>
 <style>
-:root{--card:#fff;--ink:#211b35;--muted:#726b86;--primary:#6c4df6;--primary2:#8b74ff;--good:#20a464;--bad:#d94c4c;--soft:#eee9ff}
+:root{
+  --bg1:#0d2348;
+  --bg2:#1f3c6e;
+  --accent:#1877ff;
+  --accent2:#56a0ff;
+  --cream:#f3e8d2;
+  --cream2:#fff8ea;
+  --ink:#142033;
+  --white:#fff;
+  --muted:#dce6f6;
+  --good:#47c96e;
+  --bad:#f45d5d;
+  --dark-btn:#1e2b44;
+}
 *{box-sizing:border-box}
-html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--ink);background:#f4f1fb}
-body{min-height:100vh;padding:16px;overflow-y:auto;-webkit-overflow-scrolling:touch}
-button{font-family:inherit;-webkit-appearance:none;appearance:none}
-.app{width:100%;max-width:680px;margin:0 auto}
-.title{text-align:center;margin:8px 0 4px;font-size:36px;line-height:1.1}
-.subtitle{text-align:center;color:var(--muted);margin:0 0 16px}
-.card{width:100%;background:var(--card);border-radius:22px;padding:18px;box-shadow:0 10px 28px rgba(61,45,110,.10);border:1px solid #ebe7f7}
-.hidden{display:none!important}
-h2{margin:0 0 8px;font-size:24px}.help{color:var(--muted);margin:0 0 12px;line-height:1.4}
-.chord-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:12px 0 15px;width:100%}
+html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),#102b56 35%, #26415e 75%, #a55b39 100%);color:#fff}
+body{padding:calc(14px + env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom));}
+button{font:inherit}
+.hidden{display:none !important}
+.app{max-width:760px;margin:0 auto}
+.hero{padding:10px 0 18px;text-align:center}
+.logo-title{font-size:clamp(34px,8vw,56px);font-weight:900;line-height:0.95;letter-spacing:.5px;text-shadow:0 3px 10px rgba(0,0,0,.25)}
+.logo-sub{font-size:20px;font-weight:700;letter-spacing:4px;margin-top:2px;text-transform:uppercase;color:#f7eedf}
+.card{background:rgba(255,255,255,.14);backdrop-filter: blur(4px); border:1px solid rgba(255,255,255,.12); border-radius:28px; padding:18px; box-shadow:0 16px 35px rgba(0,0,0,.18)}
+.home-buttons{display:grid;gap:14px}
+.mode-btn,.primary-btn,.secondary-btn,.small-btn,.answer-btn{border:0;border-radius:18px;cursor:pointer}
+.mode-btn{display:block;width:100%;padding:18px 16px;background:linear-gradient(180deg,#fff5e6,#efe0c4);color:var(--ink);text-align:left;box-shadow:0 8px 18px rgba(0,0,0,.16)}
+.mode-btn strong{display:block;font-size:22px;margin-bottom:4px}
+.mode-btn span{display:block;color:#41506a;font-size:15px;line-height:1.35}
+.screen-title{font-size:30px;font-weight:900;margin:0 0 6px;text-align:center}
+.screen-sub{margin:0 0 16px;text-align:center;color:#eef5ff;line-height:1.45}
+.chord-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0 10px}
 .pick-input{position:absolute;opacity:0;pointer-events:none}
-.pick{display:flex;align-items:center;justify-content:center;min-height:56px;border:2px solid #dcd5f8;border-radius:15px;background:#fff;color:#211b35;font-size:20px;font-weight:800;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
-.pick-input:checked + .pick{background:#6c4df6;color:#fff;border-color:#6c4df6;box-shadow:0 4px 12px rgba(108,77,246,.22)}
-.start{display:block;width:100%;border:0;border-radius:17px;min-height:58px;background:#6c4df6;color:#fff;font-weight:900;font-size:20px;cursor:pointer}
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-.stat{background:var(--soft);padding:9px 12px;border-radius:13px;font-weight:800}
-.endbtn,.backbtn{border:0;background:#eeeef5;color:#373246;border-radius:13px;padding:9px 12px;font-weight:800}.backbtn{background:#f4f1ff;color:#3b2f7a;border:2px solid #d8d0ff}
-.prompt{text-align:center;font-size:18px;font-weight:800;margin:7px 0 5px}
-.fret-wrap{display:flex;justify-content:center;margin:5px 0}
-.fret-wrap canvas{width:100%;max-width:390px;height:auto;display:block}
-.replay-row{display:flex;justify-content:center;margin:2px 0 7px}
-.replay{border:2px solid #cfc5ff;background:#f4f1ff;color:#3b2f7a;border-radius:15px;padding:11px 17px;font-weight:900;font-size:17px}
-.feedback{min-height:40px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:20px;font-weight:900;margin:3px 0 9px}
-.feedback.good{color:var(--good)}.feedback.bad{color:var(--bad)}
-.answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.answer{min-height:64px;border:2px solid #ded8f8;background:#fff;color:#211b35;border-radius:17px;font-size:23px;font-weight:900}
-.answer.wrong{border-color:#d94c4c;background:#fff0f0;color:#211b35}
-.answer.correct{border-color:#20a464;background:#effcf5;color:#211b35}
-.mini{font-size:12px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.4}
-@media(max-width:520px){
-body{padding:calc(8px + env(safe-area-inset-top)) 9px calc(16px + env(safe-area-inset-bottom))}
-.title{font-size:27px;margin:2px 0}.subtitle{font-size:14px;margin-bottom:8px}
-.card{padding:13px;border-radius:17px}h2{font-size:21px}.help{font-size:14px;margin-bottom:7px}
-.chord-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:8px 0 12px}
-.pick{min-height:50px;font-size:19px;padding:6px 2px}.start{min-height:54px;font-size:19px}
-.stat,.endbtn,.backbtn{font-size:14px;padding:8px 9px}.answer{min-height:58px;font-size:21px}}
-@media(max-width:340px){.chord-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.pick-label{display:flex;align-items:center;justify-content:center;min-height:58px;border-radius:16px;background:rgba(255,248,234,.92);color:#16243a;font-weight:900;font-size:21px;border:2px solid transparent;box-shadow:0 5px 12px rgba(0,0,0,.12)}
+.pick-input:checked + .pick-label{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:#dcebff}
+.primary-btn{width:100%;padding:16px 18px;background:linear-gradient(180deg,var(--accent),#006cff);color:#fff;font-size:22px;font-weight:900;box-shadow:0 10px 22px rgba(0,70,180,.35)}
+.secondary-btn{padding:12px 16px;background:rgba(255,255,255,.17);color:#fff;font-weight:800}
+.small-btn{padding:12px 16px;background:#2e3f61;color:#fff;font-weight:800;border:1px solid rgba(255,255,255,.18)}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.pill{background:rgba(255,255,255,.18);padding:9px 13px;border-radius:14px;font-weight:800}
+.game-shell{display:grid;gap:14px}
+.panel{background:rgba(255,248,234,.96);border-radius:26px;padding:14px;color:var(--ink);box-shadow:0 10px 24px rgba(0,0,0,.16)}
+.panel h3{margin:0 0 2px;font-size:18px}
+.prompt{font-size:22px;font-weight:900;text-align:center;color:#fff;margin-top:0}
+.canvas-wrap{display:flex;justify-content:center}
+canvas{width:min(100%,360px);height:auto;display:block}
+.feedback{min-height:34px;text-align:center;font-size:22px;font-weight:900;margin-top:2px}
+.feedback.good{color:#afffb7}
+.feedback.bad{color:#ffd0d0}
+.answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.answer-btn{min-height:66px;background:var(--dark-btn);color:#fff;font-size:28px;font-weight:900;box-shadow:0 8px 18px rgba(0,0,0,.18);border:2px solid rgba(255,255,255,.08)}
+.answer-btn.correct{background:linear-gradient(180deg,#59d77c,#35b95b)}
+.answer-btn.wrong{background:linear-gradient(180deg,#f67474,#da4c4c)}
+.toolbar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.build-target{font-size:34px;font-weight:900;text-align:center;margin:0;color:#fff}
+.build-board-wrap{display:flex;justify-content:center}
+.build-board{background:var(--cream);border-radius:24px;padding:16px 14px 18px;box-shadow:0 10px 24px rgba(0,0,0,.16);color:var(--ink)}
+.build-top, .build-grid, .build-bottom{display:grid;grid-template-columns:repeat(4,54px);justify-content:center}
+.build-top{gap:0;margin-bottom:8px}
+.build-bottom{gap:0;margin-top:12px}
+.open-slot,.string-label{text-align:center}
+.open-btn{width:24px;height:24px;border-radius:50%;border:3px solid #243a57;background:transparent;display:inline-block;cursor:pointer}
+.open-btn.active{background:#2d7dff;border-color:#2d7dff}
+.build-grid{grid-template-rows:repeat(4,58px);border-top:7px solid #243a57;position:relative;background:linear-gradient(to right, transparent 12.5%, #243a57 12.5%, #243a57 13.3%, transparent 13.3%, transparent 37.5%, #243a57 37.5%, #243a57 38.3%, transparent 38.3%, transparent 62.5%, #243a57 62.5%, #243a57 63.3%, transparent 63.3%, transparent 87.5%, #243a57 87.5%, #243a57 88.3%, transparent 88.3%)}
+.build-grid::before,.build-grid::after{content:"";position:absolute;left:0;right:0;border-top:3px solid #243a57}
+.build-grid::before{top:25%}.build-grid::after{top:50%}
+.build-grid .row3{position:absolute;left:0;right:0;top:75%;border-top:3px solid #243a57}
+.fret-cell{display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer}
+.fret-dot{width:24px;height:24px;border-radius:50%;background:#101721;opacity:0;transform:scale(.4);transition:.12s}
+.fret-cell.active .fret-dot{opacity:1;transform:scale(1)}
+.string-label{font-weight:900;color:#52627e}
+.note{font-size:13px;color:#d9e4f6;text-align:center;line-height:1.45}
+.home-link{background:rgba(255,255,255,.16);color:#fff;font-weight:800;padding:11px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.15)}
+.mode-chip{background:rgba(255,255,255,.14);padding:8px 12px;border-radius:14px;font-weight:800}
+.success-card{color:#fff;text-align:center}
+@media (max-width:560px){
+  .chord-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .logo-title{font-size:42px}
+  .logo-sub{font-size:18px;letter-spacing:3px}
+  .answer-btn{font-size:24px;min-height:60px}
+  .build-top,.build-grid,.build-bottom{grid-template-columns:repeat(4,46px)}
+  .build-grid{grid-template-rows:repeat(4,50px)}
+  .mode-btn strong{font-size:20px}
+}
+@media (max-width:360px){
+  .chord-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 </style>
 </head>
 <body>
 <div class="app">
-  <h1 class="title">🎵 Ukulele Chord Match</h1>
-  <p class="subtitle">Pick the chords to practice, then start the game.</p>
-
-  <section id="setup" class="card">
-    <h2>Choose Chords</h2>
-    <p class="help">Tap at least two chords. These will be the possible answers during the game.</p>
-    <div id="chordGrid" class="chord-grid">
-      <input class="pick-input" type="checkbox" id="pick-C" value="C"><label class="pick" for="pick-C">C</label>
-      <input class="pick-input" type="checkbox" id="pick-F" value="F"><label class="pick" for="pick-F">F</label>
-      <input class="pick-input" type="checkbox" id="pick-G" value="G"><label class="pick" for="pick-G">G</label>
-      <input class="pick-input" type="checkbox" id="pick-Am" value="Am"><label class="pick" for="pick-Am">Am</label>
-      <input class="pick-input" type="checkbox" id="pick-Dm" value="Dm"><label class="pick" for="pick-Dm">Dm</label>
-      <input class="pick-input" type="checkbox" id="pick-Em" value="Em"><label class="pick" for="pick-Em">Em</label>
-      <input class="pick-input" type="checkbox" id="pick-A" value="A"><label class="pick" for="pick-A">A</label>
-      <input class="pick-input" type="checkbox" id="pick-D" value="D"><label class="pick" for="pick-D">D</label>
-      <input class="pick-input" type="checkbox" id="pick-A7" value="A7"><label class="pick" for="pick-A7">A7</label>
-      <input class="pick-input" type="checkbox" id="pick-C7" value="C7"><label class="pick" for="pick-C7">C7</label>
-      <input class="pick-input" type="checkbox" id="pick-G7" value="G7"><label class="pick" for="pick-G7">G7</label>
-      <input class="pick-input" type="checkbox" id="pick-E7" value="E7"><label class="pick" for="pick-E7">E7</label>
+  <section id="homeScreen">
+    <div class="hero">
+      <div class="logo-title">Ukulele</div>
+      <div class="logo-sub">Chord Game</div>
     </div>
-    <div id="setupMsg" class="mini" style="margin:0 0 10px">Select at least 2 chords.</div>
-    <button id="startBtn" type="button" class="start">Start Game ▶</button>
-    <div class="mini">Tip: Start young students with 3–4 chords, then add more as they improve.</div>
+    <div class="card">
+      <h2 class="screen-title">Choose a Mode</h2>
+      <p class="screen-sub">Practice by matching a chord diagram to its name, or build the requested chord yourself on the ukulele neck.</p>
+      <div class="home-buttons">
+        <button class="mode-btn" data-mode="match">
+          <strong>🎯 Match the Chord</strong>
+          <span>See a chord diagram and tap the correct chord name from the answer choices below.</span>
+        </button>
+        <button class="mode-btn" data-mode="build">
+          <strong>✋ Build the Chord</strong>
+          <span>See a chord name and tap the uke strings and frets to build the correct fingering, then check your answer.</span>
+        </button>
+      </div>
+    </div>
   </section>
 
-  <section id="game" class="card hidden">
-    <div class="topbar">
-      <button id="backBtn" type="button" class="backbtn">← Back to Home</button>
-      <div class="stat">⭐ Score: <span id="score">0</span></div>
-      <div class="stat">🔥 Streak: <span id="streak">0</span></div>
+  <section id="setupScreen" class="hidden">
+    <div class="hero" style="padding-top:0">
+      <div class="logo-title" style="font-size:36px">Select Chords</div>
+      <div class="logo-sub" style="font-size:15px">Choose which chords to include</div>
     </div>
-    <div class="prompt">Which chord is this?</div>
-    <div class="fret-wrap"><canvas id="fretboard" width="430" height="420"></canvas></div>
-    <div class="replay-row"><button id="replayBtn" type="button" class="replay">🔊 Replay Chord</button></div>
-    <div id="feedback" class="feedback">Choose the matching chord below.</div>
-    <div id="answers" class="answers"></div>
-    <div class="mini">Wrong answers stay on the screen until the correct chord is chosen.</div>
+    <div class="card">
+      <div class="topbar">
+        <button id="setupHomeBtn" class="home-link">← Home</button>
+        <div class="mode-chip" id="setupModeChip">Mode</div>
+      </div>
+      <div class="chord-grid" id="setupChordGrid"></div>
+      <p id="setupMsg" class="note" style="color:#fff;margin:8px 0 14px">Select at least 2 chords.</p>
+      <button id="startBtn" class="primary-btn">Start Game ▶</button>
+    </div>
+  </section>
+
+  <section id="matchScreen" class="hidden">
+    <div class="topbar">
+      <button id="matchBackBtn" class="home-link">← Back to Home</button>
+      <div class="pill">⭐ Score: <span id="matchScore">0</span></div>
+      <div class="pill">🔥 Streak: <span id="matchStreak">0</span></div>
+    </div>
+    <p class="prompt">What chord is this?</p>
+    <div class="game-shell">
+      <div class="panel">
+        <div class="canvas-wrap"><canvas id="matchCanvas" width="380" height="360"></canvas></div>
+      </div>
+      <div class="toolbar"><button id="matchReplayBtn" class="small-btn">🔊 Replay Chord</button></div>
+      <div id="matchFeedback" class="feedback">Choose the matching chord below.</div>
+      <div id="matchAnswers" class="answers"></div>
+    </div>
+  </section>
+
+  <section id="buildScreen" class="hidden">
+    <div class="topbar">
+      <button id="buildBackBtn" class="home-link">← Back to Home</button>
+      <div class="pill">⭐ Score: <span id="buildScore">0</span></div>
+      <div class="pill">🔥 Streak: <span id="buildStreak">0</span></div>
+    </div>
+    <p class="prompt">Build this chord:</p>
+    <p class="build-target" id="buildTarget">G</p>
+    <div class="toolbar" style="margin-bottom:10px"><button id="buildReplayBtn" class="small-btn">🔊 Replay Chord</button></div>
+    <div class="build-board-wrap">
+      <div class="build-board">
+        <div class="build-top" id="buildTop"></div>
+        <div class="build-grid" id="buildGrid"><div class="row3"></div></div>
+        <div class="build-bottom">
+          <div class="string-label">G</div>
+          <div class="string-label">C</div>
+          <div class="string-label">E</div>
+          <div class="string-label">A</div>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar" style="margin-top:14px">
+      <button id="buildCheckBtn" class="primary-btn" style="width:auto;min-width:170px;padding:13px 22px">Check Answer</button>
+      <button id="buildClearBtn" class="secondary-btn">Clear</button>
+    </div>
+    <div id="buildFeedback" class="feedback">Tap one position for each string, then check your answer.</div>
   </section>
 </div>
+
 <script>
 (function(){
-var CHORDS={C:[0,0,0,3],F:[2,0,1,0],G:[0,2,3,2],Am:[2,0,0,0],Dm:[2,2,1,0],Em:[0,4,3,2],A:[2,1,0,0],D:[2,2,2,0],A7:[0,1,0,0],C7:[0,0,0,1],G7:[0,2,1,2],E7:[1,2,0,2]};
-var OPEN_FREQS=[392,261.63,329.63,440];
-var pool=[],questionQueue=[],current=null,last=null,score=0,streak=0,locked=false,audioCtx=null;
-var setup=document.getElementById('setup'),game=document.getElementById('game'),startBtn=document.getElementById('startBtn'),setupMsg=document.getElementById('setupMsg'),answers=document.getElementById('answers'),feedback=document.getElementById('feedback'),scoreEl=document.getElementById('score'),streakEl=document.getElementById('streak'),backBtn=document.getElementById('backBtn'),replayBtn=document.getElementById('replayBtn'),canvas=document.getElementById('fretboard'),ctx=canvas.getContext('2d');
-var pickInputs=document.getElementsByClassName('pick-input');
+const CHORDS={C:[0,0,0,3],F:[2,0,1,0],G:[0,2,3,2],Am:[2,0,0,0],Dm:[2,2,1,0],Em:[0,4,3,2],A:[2,1,0,0],D:[2,2,2,0],A7:[0,1,0,0],C7:[0,0,0,1],G7:[0,2,1,2],E7:[1,2,0,2]};
+const CHORD_NAMES=Object.keys(CHORDS);
+const OPEN_FREQS=[392,261.63,329.63,440];
+let currentMode='match';
+let pool=[];
+let audioCtx=null;
 
-function getSelectedChords(){var out=[];for(var i=0;i<pickInputs.length;i++){if(pickInputs[i].checked)out.push(pickInputs[i].value);}return out;}
-function updateSetupStatus(){var count=getSelectedChords().length;if(count>=2){setupMsg.textContent=count+' chords selected — ready to play!';}else if(count===1){setupMsg.textContent='1 chord selected — choose at least 1 more.';}else{setupMsg.textContent='Select at least 2 chords.';}}
-for(var p=0;p<pickInputs.length;p++){pickInputs[p].addEventListener('change',updateSetupStatus);}
+const screens={
+  home:document.getElementById('homeScreen'),
+  setup:document.getElementById('setupScreen'),
+  match:document.getElementById('matchScreen'),
+  build:document.getElementById('buildScreen')
+};
 
-startBtn.addEventListener('click',function(){
-  unlockAudio();
-  pool=getSelectedChords();
-  if(pool.length<2){setupMsg.textContent='Please select at least 2 chords first.';return;}
-  questionQueue=[];last=null;score=0;streak=0;scoreEl.textContent='0';streakEl.textContent='0';
-  setup.classList.add('hidden');game.classList.remove('hidden');
-  window.scrollTo(0,0);nextQuestion();
-});
-
-backBtn.addEventListener('click',function(){
-  locked=false;
-  questionQueue=[];
-  current=null;
-  game.classList.add('hidden');
-  setup.classList.remove('hidden');
-  feedback.className='feedback';
-  feedback.textContent='Choose the matching chord below.';
+function showScreen(name){
+  Object.values(screens).forEach(el=>el.classList.add('hidden'));
+  screens[name].classList.remove('hidden');
   window.scrollTo(0,0);
-});
-
-replayBtn.addEventListener('click',function(){if(current){withAudio(function(){playChord(CHORDS[current]);});}});
-
-function shuffle(items){var arr=items.slice();for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var temp=arr[i];arr[i]=arr[j];arr[j]=temp;}return arr;}
-function refillQuestionQueue(){questionQueue=shuffle(pool);if(questionQueue.length>1&&questionQueue[0]===last){var temp=questionQueue[0];questionQueue[0]=questionQueue[1];questionQueue[1]=temp;}}
-function nextQuestion(){locked=false;if(questionQueue.length===0)refillQuestionQueue();current=questionQueue.shift();last=current;drawChord(CHORDS[current]);renderAnswers();feedback.className='feedback';feedback.textContent='Choose the matching chord below.';}
-function makeAnswer(name){var button=document.createElement('button');button.type='button';button.className='answer';button.textContent=name;button.addEventListener('click',function(){choose(name,button);});return button;}
-function renderAnswers(){answers.innerHTML='';for(var i=0;i<pool.length;i++){answers.appendChild(makeAnswer(pool[i]));}}
-
-function choose(name,button){
-  if(locked)return;
-  if(name===current){
-    locked=true;score++;streak++;scoreEl.textContent=score;streakEl.textContent=streak;
-    button.className='answer correct';feedback.className='feedback good';feedback.textContent='✅ Correct!';
-    var answeredChord=current;
-    withAudio(function(){
-      playSuccess();
-      setTimeout(function(){playChord(CHORDS[answeredChord]);},360);
-    });
-    setTimeout(nextQuestion,1500);
-  }else{
-    streak=0;streakEl.textContent='0';button.className='answer wrong';
-    feedback.className='feedback bad';feedback.textContent='❌ Try again!';
-    withAudio(function(){playBuzz();});
-  }
 }
 
-function drawChord(frets){
-  var W=canvas.width,H=canvas.height;ctx.clearRect(0,0,W,H);
-  ctx.fillStyle='#fff';ctx.strokeStyle='#ded8f8';ctx.lineWidth=3;roundRect(ctx,12,12,W-24,H-24,24);ctx.fill();ctx.stroke();
-  var left=95,right=335,top=108,bottom=350,stringX=[],i;
-  for(i=0;i<4;i++)stringX.push(left+i*(right-left)/3);
-  ctx.fillStyle='#211b35';ctx.font='900 25px Arial';ctx.textAlign='center';ctx.fillText('Ukulele',W/2,38);
-  ctx.strokeStyle='#3f3851';ctx.lineCap='round';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(left-28,top);ctx.lineTo(right+28,top);ctx.stroke();
-  ctx.lineWidth=3;
-  for(var f=1;f<=4;f++){var fy=top+f*(bottom-top)/4;ctx.beginPath();ctx.moveTo(left-28,fy);ctx.lineTo(right+28,fy);ctx.stroke();}
-  for(i=0;i<4;i++){ctx.lineWidth=2+i*.35;ctx.beginPath();ctx.moveTo(stringX[i],top-20);ctx.lineTo(stringX[i],bottom);ctx.stroke();}
-  ctx.fillStyle='#726b86';ctx.font='700 20px Arial';var labels=['G','C','E','A'];
-  for(i=0;i<4;i++)ctx.fillText(labels[i],stringX[i],bottom+38);
-  for(i=0;i<frets.length;i++){
-    var fret=frets[i];
-    if(fret===0){ctx.strokeStyle='#6c4df6';ctx.lineWidth=4;ctx.beginPath();ctx.arc(stringX[i],top-36,12,0,Math.PI*2);ctx.stroke();}
-    else{var fretHeight=(bottom-top)/4,y=top+(fret-.5)*fretHeight;ctx.fillStyle='#6c4df6';ctx.beginPath();ctx.arc(stringX[i],y,17,0,Math.PI*2);ctx.fill();}
-  }
+// Home/setup
+const setupGrid=document.getElementById('setupChordGrid');
+const setupMsg=document.getElementById('setupMsg');
+const setupModeChip=document.getElementById('setupModeChip');
+function renderSetupGrid(){
+  setupGrid.innerHTML='';
+  CHORD_NAMES.forEach(name=>{
+    const id='pick-'+name.replace(/[^a-z0-9]/gi,'');
+    const input=document.createElement('input');
+    input.type='checkbox'; input.className='pick-input'; input.id=id; input.value=name;
+    input.addEventListener('change', updateSetupStatus);
+    const label=document.createElement('label');
+    label.className='pick-label'; label.setAttribute('for',id); label.textContent=name;
+    setupGrid.appendChild(input); setupGrid.appendChild(label);
+  });
 }
+function getSelectedChords(){
+  return [...setupGrid.querySelectorAll('.pick-input:checked')].map(x=>x.value);
+}
+function updateSetupStatus(){
+  const count=getSelectedChords().length;
+  setupMsg.textContent = count>=2 ? `${count} chords selected — ready to play!` : count===1 ? '1 chord selected — choose at least 1 more.' : 'Select at least 2 chords.';
+}
+renderSetupGrid();
 
-function roundRect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+document.querySelectorAll('.mode-btn').forEach(btn=>btn.addEventListener('click',()=>{
+  currentMode=btn.dataset.mode;
+  setupModeChip.textContent=currentMode==='match' ? '🎯 Match the Chord' : '✋ Build the Chord';
+  showScreen('setup');
+}));
+document.getElementById('setupHomeBtn').addEventListener('click',()=>showScreen('home'));
+
+// Audio
 function getAudioContext(){
-  if(!audioCtx){
-    var AC=window.AudioContext||window.webkitAudioContext;
-    if(!AC)return null;
-    try{audioCtx=new AC();}catch(e){return null;}
-  }
+  if(!audioCtx){ const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return null; try{audioCtx=new AC();}catch(e){return null;} }
   return audioCtx;
 }
 function unlockAudio(){
-  var c=getAudioContext();
-  if(!c)return;
-  try{
-    var osc=c.createOscillator(),gain=c.createGain();
-    gain.gain.value=0.00001;
-    osc.connect(gain);gain.connect(c.destination);
-    osc.start(c.currentTime);osc.stop(c.currentTime+.02);
-  }catch(e){}
-  if(c.state==='suspended'&&c.resume){
-    try{var p=c.resume();if(p&&p.catch)p.catch(function(){});}catch(e){}
+  const c=getAudioContext(); if(!c) return;
+  try{ const osc=c.createOscillator(), gain=c.createGain(); gain.gain.value=0.00001; osc.connect(gain); gain.connect(c.destination); osc.start(c.currentTime); osc.stop(c.currentTime+0.02);}catch(e){}
+  if(c.state==='suspended'&&c.resume){ try{c.resume();}catch(e){} }
+}
+function withAudio(fn){ const c=getAudioContext(); if(!c) return; if(c.state==='suspended'&&c.resume){ try{ const p=c.resume(); if(p&&p.then){p.then(fn).catch(()=>{}); return;} }catch(e){} } fn(); }
+function pluck(freq,time,duration=.75,gainAmount=.09){
+  if(!audioCtx) return;
+  const osc=audioCtx.createOscillator(), gain=audioCtx.createGain(), filter=audioCtx.createBiquadFilter();
+  osc.type='triangle'; osc.frequency.setValueAtTime(freq,time); filter.type='lowpass'; filter.frequency.setValueAtTime(2400,time); filter.Q.value=.7;
+  gain.gain.setValueAtTime(.0001,time); gain.gain.exponentialRampToValueAtTime(gainAmount,time+.012); gain.gain.exponentialRampToValueAtTime(.0001,time+duration);
+  osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); osc.start(time); osc.stop(time+duration+.05);
+}
+function playChord(frets){ if(!audioCtx) return; const t=audioCtx.currentTime+.03; frets.forEach((f,i)=>pluck(OPEN_FREQS[i]*Math.pow(2,f/12),t+i*.055,.95,.08)); }
+function playSuccess(){ if(!audioCtx) return; const t=audioCtx.currentTime; pluck(523.25,t,.13,.06); pluck(659.25,t+.08,.13,.06); pluck(783.99,t+.16,.16,.07); }
+function playBuzz(){ if(!audioCtx) return; const t=audioCtx.currentTime,osc=audioCtx.createOscillator(),gain=audioCtx.createGain(); osc.type='sawtooth'; osc.frequency.setValueAtTime(125,t); osc.frequency.exponentialRampToValueAtTime(80,t+.24); gain.gain.setValueAtTime(.06,t); gain.gain.exponentialRampToValueAtTime(.0001,t+.26); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(t); osc.stop(t+.28); }
+
+// Helpers
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+// Match mode
+const matchCanvas=document.getElementById('matchCanvas');
+const matchCtx=matchCanvas.getContext('2d');
+const matchAnswers=document.getElementById('matchAnswers');
+const matchFeedback=document.getElementById('matchFeedback');
+const matchScoreEl=document.getElementById('matchScore');
+const matchStreakEl=document.getElementById('matchStreak');
+let matchQueue=[], matchCurrent=null, matchLast=null, matchScore=0, matchStreak=0, matchLocked=false;
+
+function refillMatchQueue(){ matchQueue=shuffle(pool); if(matchQueue.length>1 && matchQueue[0]===matchLast){ [matchQueue[0],matchQueue[1]]=[matchQueue[1],matchQueue[0]]; } }
+function nextMatchQuestion(){ matchLocked=false; if(matchQueue.length===0) refillMatchQueue(); matchCurrent=matchQueue.shift(); matchLast=matchCurrent; drawDisplayChord(CHORDS[matchCurrent]); renderMatchAnswers(); matchFeedback.className='feedback'; matchFeedback.textContent='Choose the matching chord below.'; }
+function renderMatchAnswers(){ matchAnswers.innerHTML=''; pool.forEach(name=>{ const b=document.createElement('button'); b.className='answer-btn'; b.textContent=name; b.addEventListener('click',()=>chooseMatch(name,b)); matchAnswers.appendChild(b); }); }
+function chooseMatch(name, btn){
+  if(matchLocked) return;
+  if(name===matchCurrent){
+    matchLocked=true; matchScore++; matchStreak++; matchScoreEl.textContent=matchScore; matchStreakEl.textContent=matchStreak; btn.classList.add('correct'); matchFeedback.className='feedback good'; matchFeedback.textContent='✅ Correct!';
+    const chordName=matchCurrent; withAudio(()=>{ playSuccess(); setTimeout(()=>playChord(CHORDS[chordName]),360); }); setTimeout(nextMatchQuestion,1500);
+  } else {
+    matchStreak=0; matchStreakEl.textContent=0; btn.classList.add('wrong'); matchFeedback.className='feedback bad'; matchFeedback.textContent='❌ Try again!'; withAudio(playBuzz);
   }
 }
-function withAudio(fn){
-  var c=getAudioContext();
-  if(!c)return;
-  if(c.state==='suspended'&&c.resume){
-    try{
-      var p=c.resume();
-      if(p&&p.then){p.then(function(){fn();}).catch(function(){});return;}
-    }catch(e){}
-  }
-  fn();
+function drawDisplayChord(frets){
+  const W=matchCanvas.width,H=matchCanvas.height,ctx=matchCtx; ctx.clearRect(0,0,W,H);
+  roundRect(ctx,10,10,W-20,H-20,26); ctx.fillStyle='#f3e8d2'; ctx.fill();
+  const left=102,right=278,top=95,bottom=292; const stringX=[]; for(let i=0;i<4;i++) stringX.push(left+i*(right-left)/3);
+  ctx.fillStyle='#142033'; ctx.font='900 24px Arial'; ctx.textAlign='center'; ctx.fillText('Ukulele',W/2,48);
+  ctx.strokeStyle='#1f2f49'; ctx.lineCap='round'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(left-22,top); ctx.lineTo(right+22,top); ctx.stroke();
+  ctx.lineWidth=3; for(let f=1;f<=4;f++){ const y=top+f*(bottom-top)/4; ctx.beginPath(); ctx.moveTo(left-22,y); ctx.lineTo(right+22,y); ctx.stroke(); }
+  for(let i=0;i<4;i++){ ctx.lineWidth=2+i*.35; ctx.beginPath(); ctx.moveTo(stringX[i],top-18); ctx.lineTo(stringX[i],bottom); ctx.stroke(); }
+  ctx.fillStyle='#56657f'; ctx.font='700 18px Arial'; ['G','C','E','A'].forEach((s,i)=>ctx.fillText(s,stringX[i],bottom+28));
+  frets.forEach((f,i)=>{ if(f===0){ ctx.strokeStyle='#142033'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(stringX[i],top-30,9,0,Math.PI*2); ctx.stroke(); } else { const y=top+(f-.5)*((bottom-top)/4); ctx.fillStyle='#101721'; ctx.beginPath(); ctx.arc(stringX[i],y,12,0,Math.PI*2); ctx.fill(); } });
 }
-function pluck(freq,time,duration,gainAmount){if(!audioCtx)return;if(typeof duration==='undefined')duration=.75;if(typeof gainAmount==='undefined')gainAmount=.1;var osc=audioCtx.createOscillator(),gain=audioCtx.createGain(),filter=audioCtx.createBiquadFilter();osc.type='triangle';osc.frequency.setValueAtTime(freq,time);filter.type='lowpass';filter.frequency.setValueAtTime(2400,time);filter.Q.value=.7;gain.gain.setValueAtTime(.0001,time);gain.gain.exponentialRampToValueAtTime(gainAmount,time+.012);gain.gain.exponentialRampToValueAtTime(.0001,time+duration);osc.connect(filter);filter.connect(gain);gain.connect(audioCtx.destination);osc.start(time);osc.stop(time+duration+.05);}
-function playChord(frets){if(!audioCtx)return;var t=audioCtx.currentTime+.03;for(var i=0;i<frets.length;i++){pluck(OPEN_FREQS[i]*Math.pow(2,frets[i]/12),t+i*.055,.95,.075);}}
-function playSuccess(){if(!audioCtx)return;var t=audioCtx.currentTime;pluck(523.25,t,.14,.06);pluck(659.25,t+.08,.14,.06);pluck(783.99,t+.16,.16,.07);}
-function playBuzz(){if(!audioCtx)return;var t=audioCtx.currentTime,osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.type='sawtooth';osc.frequency.setValueAtTime(125,t);osc.frequency.exponentialRampToValueAtTime(80,t+.24);gain.gain.setValueAtTime(.06,t);gain.gain.exponentialRampToValueAtTime(.0001,t+.26);osc.connect(gain);gain.connect(audioCtx.destination);osc.start(t);osc.stop(t+.28);}
+
+document.getElementById('matchReplayBtn').addEventListener('click',()=>{ if(matchCurrent) withAudio(()=>playChord(CHORDS[matchCurrent])); });
+document.getElementById('matchBackBtn').addEventListener('click',()=>showScreen('home'));
+
+// Build mode
+const buildTarget=document.getElementById('buildTarget');
+const buildTop=document.getElementById('buildTop');
+const buildGrid=document.getElementById('buildGrid');
+const buildFeedback=document.getElementById('buildFeedback');
+const buildScoreEl=document.getElementById('buildScore');
+const buildStreakEl=document.getElementById('buildStreak');
+let buildQueue=[], buildCurrent=null, buildLast=null, buildScore=0, buildStreak=0;
+let buildSelection=[null,null,null,null];
+
+function initBuildBoard(){
+  buildTop.innerHTML='';
+  for(let string=0; string<4; string++){
+    const slot=document.createElement('div'); slot.className='open-slot';
+    const btn=document.createElement('button'); btn.className='open-btn'; btn.dataset.string=string; btn.addEventListener('click',()=>setStringSelection(string,0));
+    slot.appendChild(btn); buildTop.appendChild(slot);
+  }
+  // remove existing cells except row3 divider
+  [...buildGrid.querySelectorAll('.fret-cell')].forEach(el=>el.remove());
+  for(let fret=1; fret<=4; fret++){
+    for(let string=0; string<4; string++){
+      const cell=document.createElement('div'); cell.className='fret-cell'; cell.dataset.string=string; cell.dataset.fret=fret;
+      const dot=document.createElement('div'); dot.className='fret-dot'; cell.appendChild(dot);
+      cell.addEventListener('click',()=>setStringSelection(string,fret));
+      buildGrid.appendChild(cell);
+    }
+  }
+}
+function setStringSelection(string, fret){
+  buildSelection[string] = (buildSelection[string]===fret ? null : fret);
+  renderBuildSelection();
+}
+function renderBuildSelection(){
+  buildTop.querySelectorAll('.open-btn').forEach(btn=>btn.classList.toggle('active', buildSelection[+btn.dataset.string]===0));
+  buildGrid.querySelectorAll('.fret-cell').forEach(cell=>cell.classList.toggle('active', buildSelection[+cell.dataset.string]===+cell.dataset.fret));
+}
+function clearBuildSelection(){ buildSelection=[null,null,null,null]; renderBuildSelection(); }
+function refillBuildQueue(){ buildQueue=shuffle(pool); if(buildQueue.length>1 && buildQueue[0]===buildLast){ [buildQueue[0],buildQueue[1]]=[buildQueue[1],buildQueue[0]]; } }
+function nextBuildQuestion(){ if(buildQueue.length===0) refillBuildQueue(); buildCurrent=buildQueue.shift(); buildLast=buildCurrent; buildTarget.textContent=buildCurrent; clearBuildSelection(); buildFeedback.className='feedback'; buildFeedback.textContent='Tap one position for each string, then check your answer.'; }
+function arraysEqual(a,b){ return a.length===b.length && a.every((x,i)=>x===b[i]); }
+
+document.getElementById('buildCheckBtn').addEventListener('click',()=>{
+  if(buildSelection.some(v=>v===null)){ buildFeedback.className='feedback bad'; buildFeedback.textContent='❌ Finish all 4 strings first.'; withAudio(playBuzz); return; }
+  if(arraysEqual(buildSelection, CHORDS[buildCurrent])){
+    buildScore++; buildStreak++; buildScoreEl.textContent=buildScore; buildStreakEl.textContent=buildStreak; buildFeedback.className='feedback good'; buildFeedback.textContent='✅ Correct!'; const chordName=buildCurrent; withAudio(()=>{ playSuccess(); setTimeout(()=>playChord(CHORDS[chordName]),360); }); setTimeout(nextBuildQuestion,1500);
+  } else {
+    buildStreak=0; buildStreakEl.textContent=0; buildFeedback.className='feedback bad'; buildFeedback.textContent='❌ Not quite — try again.'; withAudio(playBuzz);
+  }
+});
+document.getElementById('buildClearBtn').addEventListener('click',clearBuildSelection);
+document.getElementById('buildReplayBtn').addEventListener('click',()=>{ if(buildCurrent) withAudio(()=>playChord(CHORDS[buildCurrent])); });
+document.getElementById('buildBackBtn').addEventListener('click',()=>showScreen('home'));
+initBuildBoard();
+
+// Start game
+function startSelectedMode(){
+  unlockAudio();
+  pool=getSelectedChords();
+  if(pool.length<2){ setupMsg.textContent='Please select at least 2 chords first.'; return; }
+  if(currentMode==='match'){
+    matchQueue=[]; matchLast=null; matchScore=0; matchStreak=0; matchScoreEl.textContent='0'; matchStreakEl.textContent='0'; showScreen('match'); nextMatchQuestion();
+  } else {
+    buildQueue=[]; buildLast=null; buildScore=0; buildStreak=0; buildScoreEl.textContent='0'; buildStreakEl.textContent='0'; showScreen('build'); nextBuildQuestion();
+  }
+}
+document.getElementById('startBtn').addEventListener('click', startSelectedMode);
+
+function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
 })();
 </script>
 </body>
