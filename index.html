@@ -68,12 +68,9 @@ canvas{width:min(100%,360px);height:auto;display:block}
 .build-target{font-size:34px;font-weight:900;text-align:center;margin:0;color:#fff}
 .build-board-wrap{display:flex;justify-content:center}
 .build-board{background:var(--cream);border-radius:24px;padding:16px 14px 18px;box-shadow:0 10px 24px rgba(0,0,0,.16);color:var(--ink)}
-.build-top, .build-grid, .build-bottom{display:grid;grid-template-columns:repeat(4,54px);justify-content:center}
-.build-top{gap:0;margin-bottom:8px}
+.build-grid, .build-bottom{display:grid;grid-template-columns:repeat(4,54px);justify-content:center}
 .build-bottom{gap:0;margin-top:12px}
-.open-slot,.string-label{text-align:center}
-.open-btn{width:24px;height:24px;border-radius:50%;border:3px solid #243a57;background:transparent;display:inline-block;cursor:pointer}
-.open-btn.active{background:#2d7dff;border-color:#2d7dff}
+.string-label{text-align:center}
 .build-grid{grid-template-rows:repeat(4,58px);border-top:7px solid #243a57;position:relative;background:linear-gradient(to right, transparent 12.5%, #243a57 12.5%, #243a57 13.3%, transparent 13.3%, transparent 37.5%, #243a57 37.5%, #243a57 38.3%, transparent 38.3%, transparent 62.5%, #243a57 62.5%, #243a57 63.3%, transparent 63.3%, transparent 87.5%, #243a57 87.5%, #243a57 88.3%, transparent 88.3%)}
 .build-grid::before,.build-grid::after{content:"";position:absolute;left:0;right:0;border-top:3px solid #243a57}
 .build-grid::before{top:25%}.build-grid::after{top:50%}
@@ -91,7 +88,7 @@ canvas{width:min(100%,360px);height:auto;display:block}
   .logo-title{font-size:42px}
   .logo-sub{font-size:18px;letter-spacing:3px}
   .answer-btn{font-size:24px;min-height:60px}
-  .build-top,.build-grid,.build-bottom{grid-template-columns:repeat(4,46px)}
+  .build-grid,.build-bottom{grid-template-columns:repeat(4,46px)}
   .build-grid{grid-template-rows:repeat(4,50px)}
   .mode-btn strong{font-size:20px}
 }
@@ -167,7 +164,6 @@ canvas{width:min(100%,360px);height:auto;display:block}
     <div class="toolbar" style="margin-bottom:10px"><button id="buildReplayBtn" class="small-btn">🔊 Replay Chord</button></div>
     <div class="build-board-wrap">
       <div class="build-board">
-        <div class="build-top" id="buildTop"></div>
         <div class="build-grid" id="buildGrid"><div class="row3"></div></div>
         <div class="build-bottom">
           <div class="string-label">G</div>
@@ -181,7 +177,7 @@ canvas{width:min(100%,360px);height:auto;display:block}
       <button id="buildCheckBtn" class="primary-btn" style="width:auto;min-width:170px;padding:13px 22px">Check Answer</button>
       <button id="buildClearBtn" class="secondary-btn">Clear</button>
     </div>
-    <div id="buildFeedback" class="feedback">Tap one position for each string, then check your answer.</div>
+    <div id="buildFeedback" class="feedback">Tap only the fretted notes. Leave open strings untouched.</div>
   </section>
 </div>
 
@@ -302,7 +298,6 @@ document.getElementById('matchBackBtn').addEventListener('click',()=>showScreen(
 
 // Build mode
 const buildTarget=document.getElementById('buildTarget');
-const buildTop=document.getElementById('buildTop');
 const buildGrid=document.getElementById('buildGrid');
 const buildFeedback=document.getElementById('buildFeedback');
 const buildScoreEl=document.getElementById('buildScore');
@@ -311,13 +306,6 @@ let buildQueue=[], buildCurrent=null, buildLast=null, buildScore=0, buildStreak=
 let buildSelection=[null,null,null,null];
 
 function initBuildBoard(){
-  buildTop.innerHTML='';
-  for(let string=0; string<4; string++){
-    const slot=document.createElement('div'); slot.className='open-slot';
-    const btn=document.createElement('button'); btn.className='open-btn'; btn.dataset.string=string; btn.addEventListener('click',()=>setStringSelection(string,0));
-    slot.appendChild(btn); buildTop.appendChild(slot);
-  }
-  // remove existing cells except row3 divider
   [...buildGrid.querySelectorAll('.fret-cell')].forEach(el=>el.remove());
   for(let fret=1; fret<=4; fret++){
     for(let string=0; string<4; string++){
@@ -333,17 +321,16 @@ function setStringSelection(string, fret){
   renderBuildSelection();
 }
 function renderBuildSelection(){
-  buildTop.querySelectorAll('.open-btn').forEach(btn=>btn.classList.toggle('active', buildSelection[+btn.dataset.string]===0));
   buildGrid.querySelectorAll('.fret-cell').forEach(cell=>cell.classList.toggle('active', buildSelection[+cell.dataset.string]===+cell.dataset.fret));
 }
 function clearBuildSelection(){ buildSelection=[null,null,null,null]; renderBuildSelection(); }
 function refillBuildQueue(){ buildQueue=shuffle(pool); if(buildQueue.length>1 && buildQueue[0]===buildLast){ [buildQueue[0],buildQueue[1]]=[buildQueue[1],buildQueue[0]]; } }
-function nextBuildQuestion(){ if(buildQueue.length===0) refillBuildQueue(); buildCurrent=buildQueue.shift(); buildLast=buildCurrent; buildTarget.textContent=buildCurrent; clearBuildSelection(); buildFeedback.className='feedback'; buildFeedback.textContent='Tap one position for each string, then check your answer.'; }
+function nextBuildQuestion(){ if(buildQueue.length===0) refillBuildQueue(); buildCurrent=buildQueue.shift(); buildLast=buildCurrent; buildTarget.textContent=buildCurrent; clearBuildSelection(); buildFeedback.className='feedback'; buildFeedback.textContent='Tap only the fretted notes. Leave open strings untouched.'; }
 function arraysEqual(a,b){ return a.length===b.length && a.every((x,i)=>x===b[i]); }
 
 document.getElementById('buildCheckBtn').addEventListener('click',()=>{
-  if(buildSelection.some(v=>v===null)){ buildFeedback.className='feedback bad'; buildFeedback.textContent='❌ Finish all 4 strings first.'; withAudio(playBuzz); return; }
-  if(arraysEqual(buildSelection, CHORDS[buildCurrent])){
+  const submittedSelection=buildSelection.map(v=>v===null ? 0 : v);
+  if(arraysEqual(submittedSelection, CHORDS[buildCurrent])){
     buildScore++; buildStreak++; buildScoreEl.textContent=buildScore; buildStreakEl.textContent=buildStreak; buildFeedback.className='feedback good'; buildFeedback.textContent='✅ Correct!'; const chordName=buildCurrent; withAudio(()=>{ playSuccess(); setTimeout(()=>playChord(CHORDS[chordName]),360); }); setTimeout(nextBuildQuestion,1500);
   } else {
     buildStreak=0; buildStreakEl.textContent=0; buildFeedback.className='feedback bad'; buildFeedback.textContent='❌ Not quite — try again.'; withAudio(playBuzz);
